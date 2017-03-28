@@ -1,0 +1,102 @@
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+}
+
+plugins {
+    id "java"
+    id "application"
+    id "jacoco"
+    id "pmd"
+    id "jdepend"
+
+    id "org.sonarqube" version "2.2.1"
+}
+
+group 'SonarGradleJacoco'
+version '1.0'
+
+mainClassName = "com.wins.palindrome"
+
+sourceCompatibility = 1.8
+
+sonarqube {
+    properties {
+        property "sonar.projectName", 'SonarGradleJacoco'
+        property "sonar.projectKey", "WinsSonarGradleJacoco"
+        property "sonar.jacoco.reportPath", "${project.buildDir}/test.exec"
+
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.4.1'
+}
+
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+    //applyTo run
+}
+
+task applicationCodeCoverageReport(type:JacocoReport){
+    executionData run
+    sourceSets sourceSets.main
+}
+
+
+allprojects {
+    ext.baseVersion = "0.1"
+    ext.snapshotVersion = true
+}
+
+
+
+pmd {
+  ignoreFailures = true
+}
+
+tasks.withType(Pmd) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+
+
+
+jdepend {
+    toolVersion = '2.9.1'
+    ignoreFailures = true
+
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile 'org.jacoco:jacoco-maven-plugin:0.7.9'
+    compile 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4-rc-2'
+
+}
+
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true
+        html.destination "${buildDir}/jacocoHtml"
+    }
+}
